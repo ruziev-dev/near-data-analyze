@@ -80,6 +80,12 @@ export class NearDB {
     return await this.get(`SELECT * FROM ${TABLES.EPOCH}`);
   }
 
+  async getEpochValidatorsData(epochId: string) {
+    return await this.get(
+      `SELECT * FROM ${TABLES.VALIDATORS} WHERE EPOCH_ID='${epochId}' ORDER BY POOLNAME ASC`
+    );
+  }
+
   async addSeviceData(key: string, value: string) {
     await this.execute(
       `INSERT OR REPLACE INTO ${TABLES.SERVICE} (KEY, VALUE)
