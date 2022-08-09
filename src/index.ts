@@ -5,6 +5,13 @@ require("dotenv").config({ path: ".env" });
 
 const { NETWORK, NODE_IP, GRAB_INTERVAL, PORT, ARCHIVAL_NODE } = process.env;
 
+globalThis.Config = {
+  NETWORK,
+  NODE_IP,
+  GRAB_INTERVAL,
+  PORT,
+  ARCHIVAL_NODE,
+};
 // service to grab network data
 grabDataService(
   NETWORK as string,

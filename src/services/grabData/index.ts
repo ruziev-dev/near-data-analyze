@@ -1,12 +1,5 @@
 import { Near, connect } from "near-api-js";
 import NearDB from "../../database/db";
-import { IEpoch } from "../../database/types";
-import {
-  countMedianStake,
-  countAverageStake,
-  countNearTokens,
-  findSeatPrice,
-} from "../../helpers";
 import { NearAPI } from "../../NearAPI/api";
 import Logger from "../logger";
 import { getEpochInfoByBlock } from "./utils";
@@ -76,42 +69,19 @@ export const grabData = async (
 
           await NearDB.addSeviceData(NEED_SINK, JSON.stringify(false));
           break;
-          /* try {
-            let epochLength = epoch_length;
-            if (iterations < 4) {
-              const block = await nearApiArchieve.getBlock(blockHeight);
-              const { epoch_length: changedEpochLenght } =
-                await nearApiArchieve.getProtocolConfig(block.header.hash);
-              epochLength = changedEpochLenght;
-            } else {
-              const block = await nearApi.getBlock(blockHeight);
-              const { epoch_length: changedEpochLenght } =
-                await nearApi.getProtocolConfig(block.header.hash);
-              epochLength = changedEpochLenght;
-            }
-            blockHeight = blockHeight - epoch_length;
-          } catch (error: any) {
-            if (error.data?.includes("DB Not Found Error"))
-              blockHeight = blockHeight + 1;
-            if (error) Logger.error(error);
-          } */
-
-          //blockHeight = blockHeight - epoch_length;
-          //iterations = iterations + 1;
+          /*
+           * There are some troubles on epoch 1289 (Unknown Epoch)
+           * TODO: understand how to fix it
+           */
         }
         iterations = iterations + 1;
         blockHeight = blockHeight - epoch_length;
-        console.log({
-          blockHeight,
-          iterations,
-        });
+        console.log({ blockHeight, iterations });
       }
       await NearDB.addSeviceData(NEED_SINK, JSON.stringify(false));
     } else {
       await getEpochInfoByBlock(nearApi, null, epoch_length);
     }
-
-    //console.log("CONFIG: ", epoch_length, runtime_config.transaction_costs);
   } catch (error: any) {
     if (error) Logger.error(error);
   }

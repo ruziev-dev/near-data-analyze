@@ -21,6 +21,7 @@ app.get("/*", async (req, res) => {
     const epochs = await NearDB.getEpochs();
     const pools = await NearDB.getPools();
     const resp = {
+      network: Config.NETWORK,
       epochs,
       pools,
     };
