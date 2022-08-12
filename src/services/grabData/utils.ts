@@ -55,6 +55,7 @@ export const getEpochInfoByBlock = async (
     START_BLOCK: epoch_start_height,
     LAST_BLOCK: epoch_start_height + epochLength - 1 || null,
     VALIDATORS: current_validators.length,
+    PROPOSALS: current_proposals.length,
     SEAT_PRICE: findSeatPrice(current_validators),
     MEDIAN_STAKE: countMedianStake(current_validators),
     AVERAGE_STAKE: countAverageStake(current_validators),

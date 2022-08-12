@@ -5,6 +5,7 @@ export interface IEpoch {
   START_BLOCK: number | null;
   LAST_BLOCK: number | null;
   VALIDATORS: number | null;
+  PROPOSALS: number | null;
   SEAT_PRICE: number | null;
   AVERAGE_STAKE: number | null;
   MEDIAN_STAKE: number | null;

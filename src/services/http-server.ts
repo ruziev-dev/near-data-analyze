@@ -1,6 +1,9 @@
 import express from "express";
 import NearDB from "../database/db";
+import cors from "cors";
 const app = express();
+
+app.use(cors());
 
 app.get("/poolid/:poolId", async (req, res) => {
   try {
@@ -47,7 +50,11 @@ app.get("/*", async (req, res) => {
       epochs,
       pools,
     };
-    res.send(resp);
+    res.status(200);
+    res.header("Access-Control-Allow-Origin", "*");
+    res.setHeader("Content-Type", "application/json");
+
+    res.json(resp);
   } catch (error) {
     res.statusMessage = "Internal Server Error";
     res.statusCode = 500;

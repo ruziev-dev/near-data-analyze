@@ -5,7 +5,8 @@ You can see my challenge report here: https://github.com/ruziev-dev/near-stakewa
 # Frontend
 
 I have put source code here: https://github.com/ruziev-dev/near-data-analyze-frontend.git
-Deploeyd version on GitHub Pages: **TODO: add gh-pages link!**
+
+Deployed version on GitHub Pages: **TODO: add gh-pages link!**
 
 # Backend
 
@@ -85,7 +86,6 @@ Logs will be written on `logs` folder
         "MEDIAN_STAKE": 3912213.5,
         "GAS_PRICE": 100000000,
         "KICKED_OUT": 2,
-        "REWARD": null
 	}
 ],
 "pools": [

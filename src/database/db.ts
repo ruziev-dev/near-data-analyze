@@ -71,13 +71,17 @@ export class NearDB {
 
   async insertEpoch(epoch: IEpoch) {
     await this.execute(
-      `INSERT OR IGNORE INTO ${TABLES.EPOCH} (ID, TIMESTAMP, HEIGHT, START_BLOCK, LAST_BLOCK, VALIDATORS, SEAT_PRICE, AVERAGE_STAKE, MEDIAN_STAKE, GAS_PRICE, KICKED_OUT, REWARD)
-        VALUES ('${epoch.ID}', ${epoch.TIMESTAMP}, ${epoch.HEIGHT}, ${epoch.START_BLOCK},${epoch.LAST_BLOCK}, ${epoch.VALIDATORS},
-        ${epoch.SEAT_PRICE}, ${epoch.AVERAGE_STAKE}, ${epoch.MEDIAN_STAKE}, ${epoch.GAS_PRICE}, ${epoch.KICKED_OUT}, ${epoch.REWARD})`
+      `INSERT OR IGNORE INTO ${TABLES.EPOCH} (ID, TIMESTAMP, HEIGHT, START_BLOCK, LAST_BLOCK,
+         VALIDATORS, PROPOSALS, SEAT_PRICE, AVERAGE_STAKE, MEDIAN_STAKE, GAS_PRICE, KICKED_OUT, REWARD)
+        VALUES ('${epoch.ID}', ${epoch.TIMESTAMP}, ${epoch.HEIGHT}, ${epoch.START_BLOCK},${epoch.LAST_BLOCK},
+        ${epoch.VALIDATORS}, ${epoch.PROPOSALS}, ${epoch.SEAT_PRICE}, ${epoch.AVERAGE_STAKE}, ${epoch.MEDIAN_STAKE},
+        ${epoch.GAS_PRICE}, ${epoch.KICKED_OUT}, ${epoch.REWARD})`
     );
   }
   async getEpochs() {
-    return await this.get(`SELECT * FROM ${TABLES.EPOCH}`);
+    return await this.get(
+      `SELECT * FROM ${TABLES.EPOCH} ORDER BY TIMESTAMP ASC`
+    );
   }
 
   async getEpochValidatorsData(epochId: string) {

@@ -1,10 +1,10 @@
 /** yoctoNear -> NEAR tokens*/
 export const countNearTokens = (yoctoNear: string) =>
-  Math.round(Number(BigInt(yoctoNear)) / 10e23);
+  Math.round(Number(yoctoNear) / 10e23);
 
 export const countMedianStake = <T extends { stake: string }>(items: T[]) => {
-  const sorted = Array.from(items).sort((a, b) =>
-    Number(BigInt(a.stake) - BigInt(b.stake))
+  const sorted = Array.from(items).sort(
+    (a, b) => countNearTokens(a.stake) - countNearTokens(b.stake)
   );
   const middle = Math.floor(sorted.length / 2);
 

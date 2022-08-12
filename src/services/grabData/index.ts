@@ -5,6 +5,7 @@ import Logger from "../logger";
 import { getEpochInfoByBlock } from "./utils";
 
 const NEED_SINK = "NEED_SINK";
+const LAST_EPOCH_START_BLOCK = "LAST_EPOCH_START_BLOCK";
 
 export const grabDataService = async (
   NETWORK: string,
@@ -46,7 +47,7 @@ export const grabData = async (
 
     if (needSinc) {
       //get current epoch info
-      await getEpochInfoByBlock(nearApi, null, epoch_length);
+      //await getEpochInfoByBlock(nearApi, null, epoch_length);
 
       //get previous epochs info
       let blockHeight = epoch_start_height - 1;
@@ -80,6 +81,14 @@ export const grabData = async (
       }
       await NearDB.addSeviceData(NEED_SINK, JSON.stringify(false));
     } else {
+      //if current epoch has been added to DB -> skip it
+      const data = await NearDB.getServiceData(LAST_EPOCH_START_BLOCK);
+      console.log({ data, epoch_start_height });
+      if (data && JSON.parse(data) === epoch_start_height) return;
+      await NearDB.addSeviceData(
+        LAST_EPOCH_START_BLOCK,
+        String(epoch_start_height)
+      );
       await getEpochInfoByBlock(nearApi, null, epoch_length);
     }
   } catch (error: any) {
