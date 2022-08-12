@@ -82,7 +82,8 @@ export const grabData = async (
     } else {
       //if current epoch has been added to DB -> skip it
       const data = await NearDB.getServiceData(LAST_EPOCH_END_BLOCK);
-      console.log({ data, epoch_start_height });
+      Logger.info(`${LAST_EPOCH_END_BLOCK}: ${data}`);
+
       if (data && JSON.parse(data) === last_epoch_end_block) return;
       await NearDB.addSeviceData(
         LAST_EPOCH_END_BLOCK,
