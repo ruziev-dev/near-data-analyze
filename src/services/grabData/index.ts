@@ -5,7 +5,7 @@ import Logger from "../logger";
 import { getEpochInfoByBlock } from "./utils";
 
 const NEED_SINK = "NEED_SINK";
-const LAST_EPOCH_START_BLOCK = "LAST_EPOCH_START_BLOCK";
+const LAST_EPOCH_END_BLOCK = "LAST_EPOCH_END_BLOCK";
 
 export const grabDataService = async (
   NETWORK: string,
@@ -45,12 +45,11 @@ export const grabData = async (
 
     const { epoch_start_height } = await nearApi.getCurrentValidators();
 
-    if (needSinc) {
-      //get current epoch info
-      //await getEpochInfoByBlock(nearApi, null, epoch_length);
+    const last_epoch_end_block = epoch_start_height - 1;
 
+    if (needSinc) {
       //get previous epochs info
-      let blockHeight = epoch_start_height - 1;
+      let blockHeight = last_epoch_end_block;
       let iterations = 0;
       console.log({ epoch_length });
       while (blockHeight >= 0) {
@@ -77,19 +76,19 @@ export const grabData = async (
         }
         iterations = iterations + 1;
         blockHeight = blockHeight - epoch_length;
-        console.log({ blockHeight, iterations });
+        console.log({ blockHeight, epochsInfoDownloaded: iterations });
       }
       await NearDB.addSeviceData(NEED_SINK, JSON.stringify(false));
     } else {
       //if current epoch has been added to DB -> skip it
-      const data = await NearDB.getServiceData(LAST_EPOCH_START_BLOCK);
+      const data = await NearDB.getServiceData(LAST_EPOCH_END_BLOCK);
       console.log({ data, epoch_start_height });
-      if (data && JSON.parse(data) === epoch_start_height) return;
+      if (data && JSON.parse(data) === last_epoch_end_block) return;
       await NearDB.addSeviceData(
-        LAST_EPOCH_START_BLOCK,
-        String(epoch_start_height)
+        LAST_EPOCH_END_BLOCK,
+        String(last_epoch_end_block)
       );
-      await getEpochInfoByBlock(nearApi, null, epoch_length);
+      await getEpochInfoByBlock(nearApi, last_epoch_end_block, epoch_length);
     }
   } catch (error: any) {
     if (error) Logger.error(error);
