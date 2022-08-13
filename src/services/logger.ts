@@ -27,7 +27,7 @@ class Logger {
   }
 
   error(error: Error) {
-    this.log(error.message, "ERROR");
+    this.log(error, "ERROR");
   }
 
   info(data: any) {

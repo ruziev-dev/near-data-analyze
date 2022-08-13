@@ -1,5 +1,6 @@
 import { grabDataService } from "./services/grabData";
 import { httpServer } from "./services/http-server";
+import logger from "./services/logger";
 
 require("dotenv").config({ path: ".env" });
 
@@ -22,5 +23,5 @@ grabDataService(
 
 // service to start http-server
 httpServer.listen(PORT, () => {
-  console.log(`Server has been started on port: ${PORT}`);
+  logger.info(`Server has been started on port: ${PORT}`);
 });
