@@ -1,5 +1,3 @@
-import { EpochValidatorInfo } from "near-api-js/lib/providers/provider";
-
 export interface TNearConfig {
   epoch_length: number;
   runtime_config: { transaction_costs: ITransactionCosts };
@@ -13,6 +11,6 @@ export interface ITransactionCosts {
   pessimistic_gas_price_inflation_ratio: {};
 }
 
-export interface TValiatorInfo extends EpochValidatorInfo {
+export interface TValiatorInfo {
   epoch_height: number;
 }
