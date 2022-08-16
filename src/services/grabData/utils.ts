@@ -1,4 +1,3 @@
-import { BlockId } from "near-api-js/lib/providers/provider";
 import NearDB from "../../database/db";
 import { IEpoch, IValidator } from "../../database/types";
 import {
@@ -7,13 +6,15 @@ import {
   countNearTokens,
   findSeatPrice,
 } from "../../helpers";
-import { NearAPI } from "../../NearAPI/api";
+import { NearAPI } from "../../NearAPI/NearApiClass";
 
 export const getEpochInfoByBlock = async (
   nearApi: NearAPI,
-  blockId: BlockId | null,
+  blockId: string | number | null,
   epochLength: number
 ) => {
+  const firstEpochBlock: any = await nearApi.getBlock(blockId as number);
+
   const {
     current_proposals,
     current_validators,
@@ -21,15 +22,16 @@ export const getEpochInfoByBlock = async (
     epoch_start_height,
     next_validators,
     prev_epoch_kickout,
-    //@ts-ignore
-  } = await nearApi.getValidators(blockId);
-
-  const firstEpochBlock = await nearApi.getBlock(epoch_start_height);
+  }: any = await nearApi.getValidatorsByEpoch(
+    firstEpochBlock.header.epoch_id as string
+  );
 
   const kickedOutPools = new Set<string>();
-  prev_epoch_kickout?.forEach((pool) => kickedOutPools.add(pool.account_id));
+  prev_epoch_kickout?.forEach((pool: any) =>
+    kickedOutPools.add(pool.account_id)
+  );
 
-  const promises = current_validators.map(async (pool) => {
+  const promises = current_validators.map(async (pool: any) => {
     const validator: IValidator = {
       POOLNAME: pool.account_id,
       EPOCH_ID: firstEpochBlock.header.epoch_id,
@@ -64,4 +66,5 @@ export const getEpochInfoByBlock = async (
   };
 
   await NearDB.insertEpoch(epochData);
+  return epoch_start_height - 1;
 };

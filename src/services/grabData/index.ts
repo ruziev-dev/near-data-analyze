@@ -1,11 +1,13 @@
-import { Near, connect } from "near-api-js";
 import NearDB from "../../database/db";
-import { NearAPI } from "../../NearAPI/api";
+import { NearAPI } from "../../NearAPI/NearApiClass";
 import Logger from "../logger";
 import { getEpochInfoByBlock } from "./utils";
 
 const NEED_SINK = "NEED_SINK";
 const LAST_EPOCH_END_BLOCK = "LAST_EPOCH_END_BLOCK";
+
+/* It have to be  0 to iter under 0 but there are troubles about blocks below 9820213*/
+const LAST_GOOD_BLOCK_HEIGHT = 9820213;
 
 export const grabDataService = async (
   NETWORK: string,
@@ -14,36 +16,24 @@ export const grabDataService = async (
   GRAB_INTERVAL?: string
 ) => {
   const interval = parseInt(GRAB_INTERVAL || "60") * 60 * 1000;
-  const officialNearApi = await connect({
-    networkId: NETWORK,
-    nodeUrl: NODE_IP,
-    headers: {},
-  });
-  const archievalNearApi = await connect({
-    networkId: NETWORK,
-    nodeUrl: ARCHIVAL_NODE,
-    headers: {},
-  });
-  await grabData(officialNearApi, archievalNearApi);
-  setInterval(() => grabData(officialNearApi, archievalNearApi), interval);
+
+  await grabData(NODE_IP, ARCHIVAL_NODE);
+  setInterval(() => grabData(NODE_IP, ARCHIVAL_NODE), interval);
 };
 
-export const grabData = async (
-  currentNearApi: Near,
-  archievalNearApi: Near
-) => {
+export const grabData = async (NODE_IP: string, ARCHIVAL_NODE: string) => {
   try {
     // default app need sincronization
     let needSinc = true;
     let needSincData = await NearDB.getServiceData(NEED_SINK);
     if (needSincData) needSinc = JSON.parse(needSincData);
 
-    const nearApi = new NearAPI(currentNearApi);
-    const nearApiArchieve = new NearAPI(archievalNearApi);
+    const nearApi = new NearAPI(NODE_IP);
+    const nearApiArchieve = new NearAPI(ARCHIVAL_NODE);
 
     let { epoch_length, runtime_config } = await nearApi.getProtocolConfig();
 
-    const { epoch_start_height } = await nearApi.getCurrentValidators();
+    const { epoch_start_height }: any = await nearApi.getCurrentValidators();
 
     const last_epoch_end_block = epoch_start_height - 1;
 
@@ -51,32 +41,31 @@ export const grabData = async (
       //get previous epochs info
       let blockHeight = last_epoch_end_block;
       let iterations = 0;
-      console.log({ epoch_length });
-      while (blockHeight >= 0) {
+
+      while (blockHeight > LAST_GOOD_BLOCK_HEIGHT) {
         try {
           // There are only last 4 epochs on main rpc nodes, previous epochs stored on archieval nodes
           if (iterations < 4)
-            await getEpochInfoByBlock(nearApi, blockHeight, epoch_length);
+            blockHeight = await getEpochInfoByBlock(
+              nearApi,
+              blockHeight,
+              epoch_length
+            );
           else {
-            await getEpochInfoByBlock(
+            blockHeight = await getEpochInfoByBlock(
               nearApiArchieve,
               blockHeight,
               epoch_length
             );
           }
         } catch (error: any) {
-          if (error) Logger.error(error);
-
-          await NearDB.addSeviceData(NEED_SINK, JSON.stringify(false));
-          break;
-          /*
-           * There are some troubles on epoch 1289 (Unknown Epoch)
-           * TODO: understand how to fix it
-           */
+          if (error) Logger.error(error.message || error);
+          blockHeight = blockHeight - 1;
+          continue;
         }
         iterations = iterations + 1;
-        blockHeight = blockHeight - epoch_length;
-        console.log({ blockHeight, epochsInfoDownloaded: iterations });
+        //blockHeight = blockHeight - epoch_length;
+        console.log({ blockHeight, iterations: iterations });
       }
       await NearDB.addSeviceData(NEED_SINK, JSON.stringify(false));
     } else {
@@ -92,6 +81,7 @@ export const grabData = async (
       await getEpochInfoByBlock(nearApi, last_epoch_end_block, epoch_length);
     }
   } catch (error: any) {
+    console.log(error);
     if (error) Logger.error(error);
   }
 };
