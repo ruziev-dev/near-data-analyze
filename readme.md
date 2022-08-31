@@ -6,7 +6,7 @@ You can see my challenge report here: https://github.com/ruziev-dev/near-stakewa
 
 I have put source code here: https://github.com/ruziev-dev/near-data-analyze-frontend.git
 
-Deployed version on GitHub Pages: **TODO: add gh-pages link!**
+It has been deployed here: http://38.242.250.37/
 
 # Backend
 
